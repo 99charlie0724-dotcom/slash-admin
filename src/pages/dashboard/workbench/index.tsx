@@ -1,346 +1,223 @@
-import avatar1 from "@/assets/images/avatars/avatar-1.png";
-import avatar2 from "@/assets/images/avatars/avatar-2.png";
-import avatar3 from "@/assets/images/avatars/avatar-3.png";
-import avatar4 from "@/assets/images/avatars/avatar-4.png";
-import avatar5 from "@/assets/images/avatars/avatar-5.png";
-import { Chart, useChart } from "@/components/chart";
-import Icon from "@/components/icon/icon";
-import { GLOBAL_CONFIG } from "@/global-config";
-import { Avatar, AvatarImage } from "@/ui/avatar";
-import { Button } from "@/ui/button";
-import { Card, CardContent } from "@/ui/card";
-import { Progress } from "@/ui/progress";
-import { Text, Title } from "@/ui/typography";
-import { rgbAlpha } from "@/utils/theme";
+import { CheckCircle, Clock3, Eye, FileText } from "lucide-react";
+import type React from "react";
 import { useState } from "react";
-import BannerCard from "./banner-card";
 
-const quickStats = [
-	{
-		icon: "solar:wallet-outline",
-		label: "All Earnings",
-		value: "$3,020",
-		percent: 30.6,
-		color: "#3b82f6",
-		chart: [12, 18, 14, 16, 12, 10, 14, 18, 16, 14, 12, 10],
-	},
-	{
-		icon: "solar:graph-outline",
-		label: "Page Views",
-		value: "290K+",
-		percent: 30.6,
-		color: "#f59e42",
-		chart: [8, 12, 10, 14, 18, 16, 14, 12, 10, 14, 18, 16],
-	},
-	{
-		icon: "solar:checklist-outline",
-		label: "Total Task",
-		value: "839",
-		percent: 0,
-		color: "#10b981",
-		chart: [10, 14, 12, 16, 18, 14, 12, 10, 14, 18, 16, 12],
-	},
-	{
-		icon: "solar:download-outline",
-		label: "Download",
-		value: "2,067",
-		percent: -30.6,
-		color: "#ef4444",
-		chart: [16, 14, 12, 10, 14, 18, 16, 12, 10, 14, 18, 16],
-	},
-];
+import { Avatar, AvatarFallback, AvatarImage } from "@/ui/avatar";
+import { Button } from "@/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/ui/card";
 
-const monthlyRevenue = {
-	series: [
-		{
-			name: "Revenue",
-			data: [30, 40, 35, 50, 49, 70, 91, 60, 50, 55, 60, 65],
-		},
-	],
-	categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-	percent: 5.44,
-};
+interface QuickStat {
+	title: string;
+	value: number;
+	suffix: string;
+	trend: number;
+	icon: React.ElementType;
+}
 
-const projectTasks = [
-	{ label: "Horizontal Layout", color: "#3b82f6" },
-	{ label: "Invoice Generator", color: "#f59e42" },
-	{ label: "Package Upgrades", color: "#fbbf24" },
-	{ label: "Figma Auto Layout", color: "#10b981" },
-];
+interface OperationRecord {
+	key: string;
+	title: string;
+	action: string;
+	time: string;
+}
 
-const projectUsers = [
-	{ avatar: avatar1, name: "John" },
-	{ avatar: avatar2, name: "Wiliam" },
-	{ avatar: avatar3, name: "Kevin" },
-	{ avatar: avatar4, name: "Maciej" },
-	{ avatar: avatar5, name: "Kamil" },
-];
-const transactions = [
-	{ icon: "mdi:spotify", name: "Spotify Music", id: "#T11032", amount: 10000, time: "06:30 pm", status: "up" },
-	{ icon: "mdi:medium", name: "Medium", id: "#T11032", amount: -26, time: "08:30 pm", status: "down" },
-	{ icon: "mdi:uber", name: "Uber", id: "#T11032", amount: 210000, time: "08:40 pm", status: "up" },
-	{ icon: "mdi:taxi", name: "Ola Cabs", id: "#T11032", amount: 210000, time: "07:40 pm", status: "up" },
-];
+interface Article {
+	title: string;
+	category: string;
+	status: string;
+	avatar: string;
+}
 
-const totalIncome = {
-	series: [44, 55, 41, 17],
-	labels: ["Income", "Download", "Rent", "Views"],
-	details: [
-		{ label: "Income", value: 23876 },
-		{ label: "Download", value: 23876 },
-		{ label: "Rent", value: 23876 },
-		{ label: "Views", value: 23876 },
-	],
-};
+const Workbench: React.FC = () => {
+	const [totalArticles] = useState<number>(1286);
+	const [todayPublished] = useState<number>(23);
+	const [pendingReview] = useState<number>(15);
+	const [hotArticleViews] = useState<number>(56842);
 
-export default function Workbench() {
-	const [activeTab, setActiveTab] = useState("All Transaction");
-	const chartOptions = useChart({
-		xaxis: { categories: monthlyRevenue.categories },
-		chart: { toolbar: { show: false } },
-		grid: { show: false },
-		stroke: { curve: "smooth" },
-		dataLabels: { enabled: false },
-		yaxis: { show: false },
-		legend: { show: false },
-	});
-	const donutOptions = useChart({
-		labels: totalIncome.labels,
-		legend: { show: false },
-		dataLabels: { enabled: false },
-		plotOptions: { pie: { donut: { size: "70%" } } },
-	});
+	const quickStats: QuickStat[] = [
+		{ title: "总文章数", value: totalArticles, suffix: "篇", trend: 12.5, icon: FileText },
+		{ title: "今日发布", value: todayPublished, suffix: "篇", trend: 8.2, icon: Clock3 },
+		{ title: "待审核文章", value: pendingReview, suffix: "篇", trend: -3.1, icon: CheckCircle },
+		{ title: "热门文章阅读量", value: hotArticleViews, suffix: "次", trend: 25.6, icon: Eye },
+	];
 
-	// throw new Error("test error"); // 注释掉直接抛错，改用演示组件
+	const weeklyPublishData = [
+		{ day: "周一", count: 15 },
+		{ day: "周二", count: 22 },
+		{ day: "周三", count: 18 },
+		{ day: "周四", count: 25 },
+		{ day: "周五", count: 30 },
+		{ day: "周六", count: 12 },
+		{ day: "周日", count: 20 },
+	];
+
+	const operationRecords: OperationRecord[] = [
+		{ key: "1", title: "Vue3 响应式原理解析", action: "发布了新文章", time: "2分钟前" },
+		{ key: "2", title: "TypeScript 高级类型", action: "编辑了文章", time: "15分钟前" },
+		{ key: "3", title: "CSS Grid 布局实战", action: "审核通过", time: "1小时前" },
+		{ key: "4", title: "前端工程化进阶", action: "提交了审核", time: "2小时前" },
+		{ key: "5", title: "React 18 新特性", action: "发布了新文章", time: "3小时前" },
+	];
+
+	const recentArticles: Article[] = [
+		{ title: "Vue3 组合式 API 详解", category: "Vue", status: "已发布", avatar: "/avatars/1.png" },
+		{ title: "React Hooks 深入理解", category: "React", status: "待审核", avatar: "/avatars/2.png" },
+		{ title: "TypeScript 类型体操", category: "TypeScript", status: "已发布", avatar: "/avatars/3.png" },
+		{ title: "前端性能优化实战", category: "性能优化", status: "草稿", avatar: "/avatars/4.png" },
+		{ title: "CSS 新特性总结", category: "CSS", status: "已发布", avatar: "/avatars/5.png" },
+	];
 
 	return (
-		<div className="flex flex-col gap-4 w-full">
-			<BannerCard />
-			{/* 顶部四个统计卡片 */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+		<div className="p-6">
+			<h1 className="text-2xl font-bold mb-6">文章管理后台</h1>
+
+			{/* 统计卡片 */}
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 				{quickStats.map((stat) => (
-					<Card key={stat.label} className="flex flex-col justify-between h-full">
-						<CardContent className="flex flex-col gap-2 p-4">
-							<div className="flex items-center gap-2">
-								<div className="rounded-lg p-2" style={{ background: rgbAlpha(stat.color, 0.1) }}>
-									<Icon icon={stat.icon} size={24} color={stat.color} />
-								</div>
-								<Text variant="body2" className="font-semibold">
-									{stat.label}
-								</Text>
-							</div>
-							<div className="flex items-center gap-2 mt-2">
-								<Title as="h3" className="text-2xl font-bold">
-									{stat.value}
-								</Title>
-								<span
-									className={`text-xs flex items-center gap-1 font-bold ${stat.percent > 0 ? "text-green-500" : stat.percent < 0 ? "text-red-500" : ""}`}
-								>
-									{stat.percent > 0 ? (
-										<Icon icon="mdi:arrow-up" size={16} />
-									) : stat.percent < 0 ? (
-										<Icon icon="mdi:arrow-down" size={16} />
-									) : null}
-									{stat.percent !== 0 ? `${Math.abs(stat.percent)}%` : stat.label === "Total Task" ? "New" : null}
-								</span>
-							</div>
-							<div className="w-full h-10 mt-2">
-								<Chart
-									type="bar"
-									height={40}
-									options={useChart({
-										chart: { sparkline: { enabled: true } },
-										colors: [stat.color],
-										grid: { show: false },
-										yaxis: { show: false },
-										tooltip: { enabled: false },
-									})}
-									series={[{ data: stat.chart }]}
-								/>
+					<Card key={stat.title} className="hover:shadow-lg transition-shadow">
+						<CardHeader className="flex justify-between items-start">
+							<CardTitle className="text-sm text-gray-500">{stat.title}</CardTitle>
+							<stat.icon className="w-8 h-8 text-gray-400" />
+						</CardHeader>
+						<CardContent>
+							<p className="text-2xl font-bold" style={{ color: stat.trend >= 0 ? "#16a34a" : "#dc2626" }}>
+								{stat.value}
+								<span className="text-sm font-normal ml-1">{stat.suffix}</span>
+							</p>
+							<div className="mt-2 text-sm">
+								{stat.trend >= 0 ? (
+									<span className="text-green-600">↑ {stat.trend}%</span>
+								) : (
+									<span className="text-red-600">↓ {Math.abs(stat.trend)}%</span>
+								)}
+								<span className="text-gray-400 ml-2">较上周期</span>
 							</div>
 						</CardContent>
 					</Card>
 				))}
 			</div>
 
-			{/* 月度收入+项目进度区块 */}
-			<div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-				<Card className="lg:col-span-2">
-					<CardContent className="p-6">
-						<div className="flex items-center justify-between mb-2">
-							<Text variant="body2" className="font-semibold">
-								Monthly Revenue
-							</Text>
-							<span className="flex items-center gap-1 text-green-500 font-bold text-sm">
-								<Icon icon="mdi:arrow-up" size={16} />
-								{monthlyRevenue.percent}%
-							</span>
+			{/* 图表和表格区域 */}
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+				<Card>
+					<CardHeader>
+						<CardTitle>最近发布文章</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="h-72 w-full">
+							{/* 替换成你的 Chart 组件 */}
+							<div className="flex h-full items-end gap-2 px-4">
+								{weeklyPublishData.map((item) => (
+									<div key={item.day} className="flex flex-col items-center">
+										<div
+											className="bg-blue-500 rounded-t w-full max-w-[40px] text-white text-xs flex items-start justify-center"
+											style={{ height: `${(item.count / 30) * 250}px` }}
+										>
+											{item.count}
+										</div>
+										<span className="text-xs text-gray-500 mt-1">{item.day}</span>
+									</div>
+								))}
+							</div>
 						</div>
-						<Chart type="area" height={220} options={chartOptions} series={monthlyRevenue.series} />
 					</CardContent>
 				</Card>
-				<Card className="flex flex-col gap-4 p-6">
-					<Text variant="body2" className="font-semibold  mb-2">
-						Project - {GLOBAL_CONFIG.appName}
-					</Text>
-					<div className="flex items-center justify-between mb-2">
-						<Text variant="body2">Release v1.2.0</Text>
-						<span className="text-xs font-bold text-blue-500">70%</span>
-					</div>
-					<Progress value={70} />
-					<ul className="flex flex-col gap-2 mt-2 mb-4">
-						{projectTasks.map((task) => (
-							<li key={task.label} className="flex items-center gap-2">
-								<span className="inline-block w-2 h-2 rounded-full" style={{ background: task.color }} />
-								<Text variant="body2">{task.label}</Text>
-							</li>
-						))}
-					</ul>
-					<Button className="w-full mt-auto" size="sm">
-						<Icon icon="mdi:plus" size={18} /> Add task
-					</Button>
-				</Card>
-			</div>
 
-			{/* 项目概览区块 */}
-			<div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-				<Card className="lg:col-span-2 flex flex-col gap-4 p-6">
-					<Text variant="body2" className="font-semibold mb-2">
-						Project overview
-					</Text>
-					<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-						<div>
-							<Text variant="body2">Total Tasks</Text>
-							<Title as="h3" className="text-xl font-bold">
-								34,686
-							</Title>
-						</div>
-						<div>
-							<Text variant="body2">Pending Tasks</Text>
-							<Title as="h3" className="text-xl font-bold">
-								3,786
-							</Title>
-						</div>
-						<div className="flex-1 flex items-center justify-end">
-							<Button className="w-48" size="sm" variant="default">
-								<Icon icon="mdi:plus" size={18} /> Add project
-							</Button>
-						</div>
-					</div>
-					<div className="w-full h-16 mt-4">
-						<Chart
-							type="line"
-							height={60}
-							options={useChart({
-								chart: { sparkline: { enabled: true } },
-								colors: ["#ef4444"],
-								grid: { show: false },
-								yaxis: { show: false },
-								tooltip: { enabled: false },
-							})}
-							series={[{ data: [10, 20, 15, 30, 25, 40, 35, 20] }]}
-						/>
-					</div>
-				</Card>
-				<Card className="flex flex-col gap-4 p-6 items-center justify-center">
-					<Text variant="body2" className="font-semibold mb-2">
-						{GLOBAL_CONFIG.appName}
-					</Text>
-					<div className="flex -space-x-2 mb-2">
-						{projectUsers.map((user) => (
-							<Avatar key={user.name} className="inline-block w-8 h-8 rounded-full">
-								<AvatarImage src={user.avatar} />
-							</Avatar>
-						))}
-					</div>
-					<Button className="w-10 h-10 rounded-full flex items-center justify-center" size="icon" variant="secondary">
-						<Icon icon="mdi:plus" size={20} />
-					</Button>
-				</Card>
-			</div>
-
-			{/* 交易+收入区块 */}
-			<div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-				<Card className="lg:col-span-2 flex flex-col p-6">
-					<div className="flex items-center gap-4 mb-4">
-						<Text variant="body2" className="font-semibold">
-							Transactions
-						</Text>
-						<div className="flex gap-2">
-							{["All Transaction", "Success", "Pending"].map((tab) => (
-								<Button
-									key={tab}
-									size="sm"
-									variant={activeTab === tab ? "default" : "ghost"}
-									onClick={() => setActiveTab(tab)}
-								>
-									{tab}
-								</Button>
-							))}
-						</div>
-					</div>
-					<div className="flex-1 overflow-x-auto">
-						<table className="w-full text-sm">
-							<tbody>
-								{transactions.map((tx) => (
-									<tr key={tx.name} className="border-b last:border-0">
-										<td className="py-2 w-12">
-											<span className="inline-flex items-center justify-center w-10 h-10 rounded-full">
-												<Icon icon={tx.icon} size={20} />
-											</span>
-										</td>
-										<td className="py-2">
-											<div className="font-semibold">{tx.name}</div>
-											<div className="text-xs">{tx.id}</div>
-										</td>
-										<td className="py-2 text-right font-bold">
-											{tx.amount > 0 ? "+" : "-"}${Math.abs(tx.amount).toLocaleString()}
-										</td>
-										<td className="py-2 text-right">
-											<span className={`text-xs font-bold ${tx.status === "up" ? "text-green-500" : "text-red-500"}`}>
-												{tx.status === "up" ? (
-													<Icon icon="mdi:arrow-up" size={14} />
-												) : (
-													<Icon icon="mdi:arrow-down" size={14} />
-												)}{" "}
-												{tx.status === "up" ? "+" : "-"}10.6%
-											</span>
-										</td>
+				<Card>
+					<CardHeader>
+						<CardTitle>最近发布文章</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="overflow-x-auto">
+							<table className="w-full text-sm">
+								<thead>
+									<tr className="border-b border-gray-200">
+										<th className="text-left py-3 px-2 font-medium text-gray-500">文章标题</th>
+										<th className="text-left py-3 px-2 font-medium text-gray-500">操作类型</th>
+										<th className="text-left py-3 px-2 font-medium text-gray-500">时间</th>
 									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
-					<div className="flex items-center justify-between mt-4 gap-2">
-						<Button variant="outline" className="flex-1">
-							View all
-						</Button>
-						<Button className="flex-1">Create new</Button>
-					</div>
-				</Card>
-				<Card className="flex flex-col p-6">
-					<Text variant="body2" className="font-semibold  mb-2">
-						Total Income
-					</Text>
-					<div className="flex-1 flex flex-col items-center justify-center">
-						<Chart type="donut" height={180} options={donutOptions} series={totalIncome.series} />
-						<div className="w-full mt-4">
-							{totalIncome.details.map((item, i) => (
-								<div key={item.label} className="flex items-center justify-between mb-2">
-									<div className="flex items-center gap-2">
-										<span
-											className={"inline-block w-3 h-3 rounded-full"}
-											style={{ background: ["#3b82f6", "#f59e42", "#10b981", "#6366f1"][i] }}
-										/>
-										<Text variant="body2">{item.label}</Text>
-									</div>
-									<span className="font-bold">${item.value.toLocaleString()}</span>
-								</div>
-							))}
+								</thead>
+								<tbody>
+									{operationRecords.map((record) => (
+										<tr key={record.key} className="border-b border-gray-100 hover:bg-gray-50">
+											<td className="py-3 px-2">
+												<button type="button" className="text-blue-600 hover:underline">
+													{record.title}
+												</button>
+											</td>
+											<td className="py-3 px-2">
+												<span
+													className={`px-2 py-1 rounded-full text-xs ${
+														record.action === "发布了新文章"
+															? "bg-green-100 text-green-700"
+															: record.action === "编辑了文章"
+																? "bg-blue-100 text-blue-700"
+																: record.action === "审核通过"
+																	? "bg-cyan-100 text-cyan-700"
+																	: "bg-orange-100 text-orange-700"
+													}`}
+												>
+													{record.action}
+												</span>
+											</td>
+											<td className="py-3 px-2 text-gray-500">{record.time}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
 						</div>
-					</div>
+					</CardContent>
 				</Card>
 			</div>
+
+			{/* 文章动态列表 */}
+			<Card>
+				<CardHeader className="flex flex-row items-center justify-between">
+					<CardTitle>文章动态</CardTitle>
+					<Button variant="link">查看更多</Button>
+				</CardHeader>
+				<CardContent>
+					<div className="space-y-3">
+						{recentArticles.map((article) => (
+							<div
+								key={article.title}
+								className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
+							>
+								<div className="flex items-center gap-3">
+									<Avatar className="w-10 h-10">
+										<AvatarImage src={article.avatar} alt={article.title} />
+										<AvatarFallback>{article.title.slice(0, 1)}</AvatarFallback>
+									</Avatar>
+									<div>
+										<button type="button" className="text-gray-900 font-medium hover:text-blue-600">
+											{article.title}
+										</button>
+										<div className="flex gap-2 mt-1">
+											<span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">{article.category}</span>
+											<span
+												className={`px-2 py-0.5 rounded text-xs ${
+													article.status === "已发布"
+														? "bg-green-100 text-green-700"
+														: article.status === "待审核"
+															? "bg-orange-100 text-orange-700"
+															: "bg-gray-100 text-gray-700"
+												}`}
+											>
+												{article.status}
+											</span>
+										</div>
+									</div>
+								</div>
+								<Button variant="ghost" size="sm">
+									编辑
+								</Button>
+							</div>
+						))}
+					</div>
+				</CardContent>
+			</Card>
 		</div>
 	);
-}
+};
+
+export default Workbench;
